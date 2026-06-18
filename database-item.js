@@ -3,7 +3,6 @@ const dbItem = {
     name: "Item",
     icon: "<img src='https://i.ibb.co.com/fzVJMcVp/IMG-20260618-205925.jpg' alt='ITEM'>",
     tag: "Barang",
-    desc: "Database seluruh item, alat, bahan crafting, dan barang bawaan di dunia Citampi Stories.",
     entries: [
         {
             id: "parfum",
