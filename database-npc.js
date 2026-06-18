@@ -3,7 +3,6 @@ const dbNpc = {
     name: "NPC",
     icon: "<img src='https://i.ibb.co.com/BHzF2GRg/IMG-20260618-203811.jpg' alt='NPC'>",
     tag: "Karakter",
-    desc: "Database semua NPC yang ada di Citampi Stories. Temukan info favorit, jadwal, dan lokasi mereka.",
     entries: [
         {
             id: "isma",
