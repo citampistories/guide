@@ -9,9 +9,22 @@ const DB = {
 // FLATTEN SEARCH INDEX
 // ============================================= //
 const searchIndex = [];
+
+// Menambahkan Kategori ke dalam Search Index agar bisa dicari
 DB.categories.forEach(cat => {
+    searchIndex.push({
+        isCategory: true,
+        categoryId: cat.id,
+        categoryName: cat.name,
+        entryName: cat.name,
+        entryIcon: cat.icon,
+        searchTerms: [cat.name.toLowerCase()],
+        category: cat
+    });
+
     cat.entries.forEach(entry => {
         searchIndex.push({
+            isCategory: false,
             categoryId: cat.id,
             categoryName: cat.name,
             entryId: entry.id,
@@ -49,7 +62,6 @@ function renderMainCards() {
             <div class="card-icon">${cat.icon}</div>
             <div class="card-tag">${escapeHTML(cat.tag)}</div>
             <div class="card-title">${escapeHTML(cat.name)}</div>
-            <div class="card-desc">${escapeHTML(cat.desc)}</div>
             <div class="card-arrow"><i class="fa-solid fa-arrow-right"></i></div>
         </div>
     `).join('');
@@ -143,7 +155,7 @@ function openCategoryPopup(catId, trackHistory = true) {
 
     openPopup(
         cat.icon,
-        `Database ${cat.name}`,
+        `${cat.name}`,
         `${cat.entries.length} entri tersedia`,
         listHtml,
         catId
@@ -275,16 +287,18 @@ searchInput.addEventListener('input', function () {
     if (matches.length === 0) {
         searchResults.innerHTML = `<div class="no-result">🔍 Tidak ada hasil untuk "<strong>${escapeHTML(this.value)}</strong>"</div>`;
     } else {
-        searchResults.innerHTML = matches.map(m => `
-            <div class="search-result-item" onclick="handleSearchClick('${m.categoryId}', '${m.entryId}')">
-                <div class="result-icon">${m.entry.image ? `<img src="${m.entry.image}" alt="${escapeHTML(m.entryName)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">` : m.entryIcon}</div>
+        const resultsHtml = matches.map(m => `
+            <div class="search-result-item" onclick="handleSearchClick('${m.categoryId}', '${m.isCategory ? 'CAT' : m.entryId}')">
+                <div class="result-icon">${m.entry?.image ? `<img src="${m.entry.image}" alt="${escapeHTML(m.entryName)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">` : m.entryIcon}</div>
                 <div>
-                    <div class="result-breadcrumb">${escapeHTML(m.categoryName)} • ${escapeHTML(m.entryName)}</div>
+                    <div class="result-breadcrumb">${m.isCategory ? 'Kategori' : escapeHTML(m.categoryName)} • ${escapeHTML(m.entryName)}</div>
                     <div class="result-name">${escapeHTML(m.entryName)}</div>
                 </div>
                 <i class="fa-solid fa-arrow-right" style="margin-left:auto;color:#a08060;font-size:13px"></i>
             </div>
         `).join('');
+        
+        searchResults.innerHTML = `<div style="padding: 10px 20px; font-size: 11px; font-weight: 700; color: #a08060; border-bottom: 2px solid #f0e8d8;">${matches.length} HASIL DITEMUKAN</div>` + resultsHtml;
     }
 
     searchResults.classList.add('visible');
@@ -306,7 +320,12 @@ function handleSearchClick(catId, entryId) {
     searchInput.classList.remove('has-clear-btn');
     // Clear history because it starts a fresh navigation from search bar
     popupHistory = [];
-    openEntryDetail(catId, entryId);
+    
+    if (entryId === 'CAT') {
+        openCategoryPopup(catId);
+    } else {
+        openEntryDetail(catId, entryId);
+    }
 }
 
 // Automatically show search results again when the search form is focused/clicked
